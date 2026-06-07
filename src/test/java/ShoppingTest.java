@@ -60,6 +60,7 @@ public class ShoppingTest {
         searchBar.sendKeys(product);
         searchBar.sendKeys(Keys.ENTER);
 
+        // انتظر النتايج تظهر
         wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.xpath("//*[contains(text(),'Pleated')]")));
         System.out.println("✅ Search done");

@@ -31,7 +31,6 @@ public class ShoppingTest {
 
     @Test(priority = 1)
     public void login() {
-        // اضغط Sign-in
         driver.findElement(By.xpath("//button[.//span[text()='Sign-in']]")).click();
 
         // انتظر الفورم يظهر

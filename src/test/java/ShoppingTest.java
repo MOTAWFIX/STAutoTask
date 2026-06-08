@@ -61,7 +61,7 @@ public class ShoppingTest {
 
         // انتظر النتايج تظهر
         wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//*[contains(text(),'Pleated')]")));
+                By.xpath("//*[contains(text(),'SATIN FLOW BEADED DRESS')]")));
         System.out.println("✅ Search done");
     }
 

@@ -23,23 +23,32 @@ jobs:
         uses: browser-actions/setup-chrome@v1
 
       - name: Connect to Outline VPN
+        env:
+          OUTLINE_KEY: ${{ secrets.OUTLINE_ACCESS_KEY }}
         run: |
           sudo apt-get install -y shadowsocks-libev 2>/dev/null
-          python3 - "${{ secrets.OUTLINE_ACCESS_KEY }}" <<'EOF'
-          import sys, base64, re, json
+          python3 <<'EOF'
+          import base64, re, json, os
 
-          key = sys.argv[1].split('?')[0]
+          key = os.environ['OUTLINE_KEY'].split('?')[0]
           body = key[5:]
+
+          def safe_decode(b):
+              try:
+                  return b.decode('utf-8')
+              except UnicodeDecodeError:
+                  return b.decode('latin-1')
+
+          def add_padding(s):
+              return s + '=' * (4 - len(s) % 4)
 
           m = re.match(r'([A-Za-z0-9+/=_-]+)@([^:]+):(\d+)$', body)
           if m:
               userinfo_b64, host, port = m.groups()
-              padding = 4 - len(userinfo_b64) % 4
-              userinfo = base64.urlsafe_b64decode(userinfo_b64 + '=' * padding).decode()
+              userinfo = safe_decode(base64.urlsafe_b64decode(add_padding(userinfo_b64)))
               method, password = userinfo.split(':', 1)
           else:
-              padding = 4 - len(body) % 4
-              decoded = base64.urlsafe_b64decode(body + '=' * padding).decode()
+              decoded = safe_decode(base64.urlsafe_b64decode(add_padding(body)))
               m2 = re.match(r'([^:]+):(.+)@([^:]+):(\d+)$', decoded)
               method, password, host, port = m2.groups()
 

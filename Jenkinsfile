@@ -73,7 +73,11 @@ pipeline {
             bat 'taskkill /F /IM chrome.exe /T >nul 2>&1 & exit /b 0'
             bat 'taskkill /F /IM chromedriver.exe /T >nul 2>&1 & exit /b 0'
 
-            cleanWs()
+            cleanWs(
+                deleteDirs           : true,
+                disableDeferredWipeout: true,
+                notFailBuild         : true
+            )
         }
 
         success {

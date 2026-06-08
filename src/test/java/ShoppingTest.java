@@ -25,9 +25,6 @@ public class ShoppingTest {
     public void openBrowser() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
-        if ("true".equals(System.getenv("USE_PROXY"))) {
-            options.addArguments("--proxy-server=socks5://127.0.0.1:1080");
-        }
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));

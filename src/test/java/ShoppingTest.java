@@ -6,6 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -20,6 +21,13 @@ public class ShoppingTest {
     String email = "mohamed.tawfik@paysky.io";
     String password = "password";
     String product = "SATIN FLOW BEADED DRESS";
+
+    @AfterTest
+    public void closeBrowser() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
 
     @BeforeTest
     public void openBrowser() {

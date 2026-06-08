@@ -2,15 +2,15 @@ pipeline {
     agent any
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '15'))   // keep last 15 builds
-        timestamps()                                      // prefix every log line with timestamp
-        timeout(time: 30, unit: 'MINUTES')               // abort if pipeline exceeds 30 min
-        disableConcurrentBuilds()                         // prevent parallel runs on same branch
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
     }
 
     environment {
-        REPO_URL  = 'https://github.com/ZiadHatem0/STAutoTask.git'
-        BRANCH    = 'master'
+        REPO_URL   = 'https://github.com/ZiadHatem0/STAutoTask.git'
+        BRANCH     = 'master'
         MAVEN_OPTS = '-Xmx512m'
     }
 
@@ -30,23 +30,24 @@ pipeline {
 
         stage('Setup Chrome') {
             steps {
-                sh '''
-                    if command -v google-chrome &>/dev/null; then
-                        echo "Chrome already installed: $(google-chrome --version)"
-                    else
-                        echo "Installing Google Chrome..."
-                        wget -q -O /tmp/chrome.deb \
-                            https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-                        sudo apt-get install -y /tmp/chrome.deb
-                        echo "Installed: $(google-chrome --version)"
-                    fi
+                powershell '''
+                    $chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+                    if (Test-Path $chrome) {
+                        $version = (Get-Item $chrome).VersionInfo.FileVersion
+                        Write-Host "Chrome is already installed: $version"
+                    } else {
+                        Write-Host "Chrome not found. Installing via Chocolatey..."
+                        choco install googlechrome -y --no-progress
+                        $version = (Get-Item $chrome).VersionInfo.FileVersion
+                        Write-Host "Installed Chrome: $version"
+                    }
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'mvn clean test -Dtestng.suites=testNG.xml'
+                bat 'mvn clean test -Dtestng.suites=testNG.xml'
             }
         }
 
@@ -54,11 +55,9 @@ pipeline {
 
     post {
         always {
-            // Publish JUnit XML results (shows per-test pass/fail in Jenkins UI)
             junit testResults: 'target/surefire-reports/*.xml',
                   allowEmptyResults: true
 
-            // Publish TestNG HTML report
             publishHTML(target: [
                 allowMissing         : true,
                 alwaysLinkToLastBuild: true,
@@ -68,24 +67,25 @@ pipeline {
                 reportName           : 'TestNG Report'
             ])
 
-            // Archive raw surefire reports as build artifacts
             archiveArtifacts artifacts: 'target/surefire-reports/**',
                              allowEmptyArchive: true
 
-            // Clean workspace after every run to save disk space
+            bat 'taskkill /F /IM chrome.exe /T >nul 2>&1 & exit /b 0'
+            bat 'taskkill /F /IM chromedriver.exe /T >nul 2>&1 & exit /b 0'
+
             cleanWs()
         }
 
         success {
-            echo "BUILD SUCCEEDED - All tests passed."
+            echo 'BUILD SUCCEEDED - All tests passed.'
         }
 
         failure {
-            echo "BUILD FAILED - Check the TestNG Report tab for details."
+            echo 'BUILD FAILED - Check the TestNG Report tab for details.'
         }
 
         unstable {
-            echo "BUILD UNSTABLE - Some tests failed."
+            echo 'BUILD UNSTABLE - Some tests failed.'
         }
     }
 }

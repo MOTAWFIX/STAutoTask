@@ -3,8 +3,10 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -20,9 +22,18 @@ public class ShoppingTest {
     String password = "password";
     String product = "SATIN FLOW BEADED DRESS";
 
+    @AfterTest
+    public void closeBrowser() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
     @BeforeTest
     public void openBrowser() {
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
@@ -31,7 +42,6 @@ public class ShoppingTest {
 
     @Test(priority = 1)
     public void login() {
-        // اضغط Sign-in
         driver.findElement(By.xpath("//button[.//span[text()='Sign-in']]")).click();
 
         // انتظر الفورم يظهر
@@ -62,7 +72,7 @@ public class ShoppingTest {
 
         // انتظر النتايج تظهر
         wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//*[contains(text(),'Pleated')]")));
+                By.xpath("//*[contains(text(),'SATIN FLOW BEADED DRESS')]")));
         System.out.println("✅ Search done");
     }
 

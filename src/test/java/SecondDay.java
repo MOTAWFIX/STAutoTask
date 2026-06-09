@@ -1,5 +1,6 @@
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.Test;
 
 public class SecondDay {
@@ -8,7 +9,9 @@ public class SecondDay {
 
     @Test
     public void OpenBrowser() {
-        D1 = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+        D1 = new ChromeDriver(options);
         navigateto("https://storefront-consumer-frontend-store-front-dev.skynodes.dev/");
         windowmax();
         
